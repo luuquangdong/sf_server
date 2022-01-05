@@ -1,5 +1,9 @@
 package com.it5240.sportfriendfinding.exception;
 
+import com.it5240.sportfriendfinding.exception.model.AuthException;
+import com.it5240.sportfriendfinding.exception.model.ErrorResponse;
+import com.it5240.sportfriendfinding.exception.model.InvalidException;
+import com.it5240.sportfriendfinding.exception.model.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -35,5 +39,11 @@ public class CustomExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleInvalidException(InvalidException ex){
         return new ErrorResponse(ex.getMessage(), ex.getCode());
+    }
+
+    @ExceptionHandler(AuthException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleAuthException(AuthException ex){
+        return new ErrorResponse(ex.getMessage(), 4444);
     }
 }

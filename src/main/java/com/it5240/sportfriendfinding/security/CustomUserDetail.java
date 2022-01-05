@@ -1,5 +1,6 @@
 package com.it5240.sportfriendfinding.security;
-import com.it5240.sportfriendfinding.entity.User;
+import com.it5240.sportfriendfinding.model.entity.User;
+import com.it5240.sportfriendfinding.model.atom.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,10 +18,10 @@ public class CustomUserDetail implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(user.getRole()));
+        return Collections.singleton(new SimpleGrantedAuthority(user.getRole().toString()));
     }
 
-    public String getRole(){
+    public Role getRole(){
         return user.getRole();
     }
 

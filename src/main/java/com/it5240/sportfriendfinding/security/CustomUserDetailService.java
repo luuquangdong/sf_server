@@ -1,6 +1,6 @@
 package com.it5240.sportfriendfinding.security;
 
-import com.it5240.sportfriendfinding.entity.User;
+import com.it5240.sportfriendfinding.model.entity.User;
 import com.it5240.sportfriendfinding.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

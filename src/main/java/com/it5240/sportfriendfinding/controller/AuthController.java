@@ -1,20 +1,19 @@
 package com.it5240.sportfriendfinding.controller;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.it5240.sportfriendfinding.dto.LoginRequest;
-import com.it5240.sportfriendfinding.security.CustomUserDetailService;
-import com.it5240.sportfriendfinding.security.JwtProperties;
+import com.it5240.sportfriendfinding.model.dto.auth.AuthInfo;
+import com.it5240.sportfriendfinding.model.dto.auth.LoginResp;
+import com.it5240.sportfriendfinding.model.dto.auth.SignUpInfo;
 import com.it5240.sportfriendfinding.service.AuthService;
+import com.it5240.sportfriendfinding.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,26 +23,29 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginInfo){
-        String token = authService.login(loginInfo);
+    public ResponseEntity<?> login(@RequestBody AuthInfo loginInfo){
+        LoginResp loginResponse = authService.login(loginInfo);
 
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + token);
+        responseHeaders.set(JwtUtil.AUTH_HEADER, JwtUtil.TOKEN_PREFIX + loginResponse.getToken());
 
-        String body = "{\"token\":\"" + token + "\"}";
-
-        return ResponseEntity.ok().headers(responseHeaders).body(body);
+        return ResponseEntity.ok().headers(responseHeaders).body(loginResponse);
     }
 
-    @PostMapping("/admin_login")
-    public ResponseEntity<?> adminLogin(@RequestBody LoginRequest loginInfo){
-        String token = authService.adminLogin(loginInfo);
+    @PostMapping("/admin-login")
+    public ResponseEntity<?> adminLogin(@RequestBody AuthInfo loginInfo){
+        LoginResp loginResponse = authService.adminLogin(loginInfo);
 
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + token);
+        responseHeaders.set(JwtUtil.AUTH_HEADER, JwtUtil.TOKEN_PREFIX + loginResponse.getToken());
 
-        String body = "{\"token\":\"" + token + "\"}";
-
-        return ResponseEntity.ok().headers(responseHeaders).body(body);
+        return ResponseEntity.ok().headers(responseHeaders).body(loginResponse);
     }
+
+    @PostMapping("/sign-up")
+    public ResponseEntity<?> signUp(@Valid @RequestBody SignUpInfo signUpInfo){
+        String result = authService.signUp(signUpInfo);
+        return ResponseEntity.ok(result);
+    }
+
 }
