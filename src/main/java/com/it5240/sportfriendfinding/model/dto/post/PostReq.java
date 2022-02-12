@@ -19,14 +19,14 @@ import javax.validation.constraints.Pattern;
 public class PostReq {
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
-    private ObjectId id;
+    protected ObjectId id;
 
     @Pattern(regexp = "^0\\d{9}$", message = "phone number invalid")
-    private String authorId;
+    protected String authorId;
 
-    private String content;
+    protected String content;
 
-    private MultipartFile image;
+    protected MultipartFile image;
 
-    private MultipartFile video;
+    protected MultipartFile video;
 }

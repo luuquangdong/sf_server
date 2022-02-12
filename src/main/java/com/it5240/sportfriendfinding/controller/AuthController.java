@@ -25,6 +25,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthInfo loginInfo){
         LoginResp loginResponse = authService.login(loginInfo);
+        loginResponse.getUser().setCanEdit(true);
 
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(JwtUtil.AUTH_HEADER, JwtUtil.TOKEN_PREFIX + loginResponse.getToken());
@@ -35,7 +36,8 @@ public class AuthController {
     @PostMapping("/admin-login")
     public ResponseEntity<?> adminLogin(@RequestBody AuthInfo loginInfo){
         LoginResp loginResponse = authService.adminLogin(loginInfo);
-
+        loginResponse.getUser().setCanEdit(true);
+        
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(JwtUtil.AUTH_HEADER, JwtUtil.TOKEN_PREFIX + loginResponse.getToken());
 
@@ -44,7 +46,7 @@ public class AuthController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(@Valid @RequestBody SignUpInfo signUpInfo){
-        String result = authService.signUp(signUpInfo);
+        var result = authService.signUp(signUpInfo);
         return ResponseEntity.ok(result);
     }
 

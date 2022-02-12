@@ -1,4 +1,4 @@
-package com.it5240.sportfriendfinding.exception.model;
+package com.it5240.sportfriendfinding.model.exception;
 
 import lombok.Getter;
 

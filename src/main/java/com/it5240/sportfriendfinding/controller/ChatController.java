@@ -50,14 +50,14 @@ public class ChatController {
     @PostMapping("/rooms")
     public ResponseEntity<?> createRoom(@Valid @RequestBody Room room){
         room.setId(null);
-        Room roomCreated = chatService.createRoom(room);
+        RoomResp roomCreated = chatService.createRoom(room);
         return ResponseEntity.ok(roomCreated);
     }
 
     @DeleteMapping("/rooms/{roomId}")
     public ResponseEntity<?> getDeleteRoom(@PathVariable ObjectId roomId, Principal principal){
         String meId = principal.getName();
-        String result = chatService.deleteRoom(roomId, meId);
+        var result = chatService.deleteRoom(roomId, meId);
         return ResponseEntity.ok(result);
     }
 }

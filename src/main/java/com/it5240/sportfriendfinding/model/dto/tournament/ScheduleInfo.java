@@ -2,7 +2,7 @@ package com.it5240.sportfriendfinding.model.dto.tournament;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.it5240.sportfriendfinding.model.atom.Schedule;
+import com.it5240.sportfriendfinding.model.unit.Schedule;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

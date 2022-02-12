@@ -1,6 +1,6 @@
 package com.it5240.sportfriendfinding.model.dto.user;
 
-import com.it5240.sportfriendfinding.model.atom.UserBase;
+import com.it5240.sportfriendfinding.model.unit.UserBase;
 import lombok.*;
 import org.bson.types.ObjectId;
 

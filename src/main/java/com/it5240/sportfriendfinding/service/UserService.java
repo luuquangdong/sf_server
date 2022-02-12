@@ -2,22 +2,30 @@ package com.it5240.sportfriendfinding.service;
 
 import com.it5240.sportfriendfinding.exception.InvalidExceptionFactory;
 import com.it5240.sportfriendfinding.exception.NotFoundExceptionFactory;
-import com.it5240.sportfriendfinding.exception.model.ExceptionType;
-import com.it5240.sportfriendfinding.model.dto.auth.AuthInfo;
+import com.it5240.sportfriendfinding.model.exception.ExceptionType;
+import com.it5240.sportfriendfinding.model.unit.Media;
+import com.it5240.sportfriendfinding.model.dto.auth.ChangePasswordInfo;
 import com.it5240.sportfriendfinding.model.dto.user.SearchInfo;
 import com.it5240.sportfriendfinding.model.dto.user.UserReq;
 import com.it5240.sportfriendfinding.model.dto.user.UserResp;
+import com.it5240.sportfriendfinding.model.entity.FriendRequest;
 import com.it5240.sportfriendfinding.model.entity.User;
+import com.it5240.sportfriendfinding.repository.FriendRequestRepository;
 import com.it5240.sportfriendfinding.repository.UserRepository;
 import com.it5240.sportfriendfinding.repository.dao.UserDao;
+import com.it5240.sportfriendfinding.service.cosin.similarity.CosineSimilarity;
 import com.it5240.sportfriendfinding.utils.RespHelper;
 import com.it5240.sportfriendfinding.utils.Uploader;
 import com.it5240.sportfriendfinding.utils.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,10 +41,45 @@ public class UserService {
     private Uploader uploader;
     @Autowired
     private UserUtil userHelper;
+    @Autowired
+    private FriendRequestRepository friendRequestRepository;
+    @Autowired
+    private CosineSimilarity cosineSimilarity;
 
-    public UserResp getUser(String id){
+    public UserResp getUser(String id, String meId){
         User user = findById(id);
-        return userHelper.toUserResp(user);
+        UserResp resp = userHelper.toUserResp(user);
+
+        if(id.equals(meId)){
+            resp.setCanEdit(true);
+            return resp;
+        }
+        
+        if(user.getFriendIds().contains(meId)){
+            resp.setFriend(true);
+            return resp;
+        }
+
+        Optional<FriendRequest> frOpt = friendRequestRepository.findByUserIdSentAndUserIdReceive(meId, id);
+        if(frOpt.isPresent()){
+            resp.setRequestedFriend(true);
+        }
+
+        return resp;
+    }
+
+    public Media updateAvatar(MultipartFile avatarFile, String meId){
+        User user = userRepository.findById(meId).get();
+        if(avatarFile == null || !avatarFile.getContentType().startsWith("image")){
+            throw InvalidExceptionFactory.get(ExceptionType.FILE_IS_NOT_IMAGE);
+        }
+        Media avatar = uploader.uploadImage(avatarFile, "avatar");
+        if(user.getAvatar() != null) {
+            uploader.deleteFile(user.getAvatar().getId());
+        }
+        user.setAvatar(avatar);
+        userRepository.save(user);
+        return avatar;
     }
 
     public UserResp updateUserInfo(UserReq newUserInfo, String phoneNumber){
@@ -49,29 +92,56 @@ public class UserService {
 
         User userUpdated = userRepository.save(user);
 
-        return userHelper.toUserResp(userUpdated);
+        return userHelper.toUserRespV2(userUpdated, phoneNumber);
     }
 
-    public String changePassword(AuthInfo authInfo, String phoneNumber){
-        if(!authInfo.getPhoneNumber().equals(phoneNumber)){
-            throw InvalidExceptionFactory.get(ExceptionType.UNAUTHORIZED);
+    public List<User> getListUser(List<String> userIds){
+        List<User> result = userRepository.findByPhoneNumberIn(userIds);
+        return result;
+    }
+
+    public Map<String, Object> changePassword(ChangePasswordInfo info, String phoneNumber){
+        User user = findById(phoneNumber);
+
+        // if(!user.getPassword().equals(passwordEncoder.encode(info.getOldPassword()))){
+        //     throw InvalidExceptionFactory.get(ExceptionType.PASSWORD_NOT_MATCH);
+        // }
+
+        if(!passwordEncoder.matches(info.getOldPassword(), user.getPassword())){
+            throw InvalidExceptionFactory.get(ExceptionType.PASSWORD_NOT_MATCH);
         }
 
-        User user = findById(phoneNumber);
-        user.setPassword(passwordEncoder.encode(authInfo.getPassword()));
+        user.setPassword(passwordEncoder.encode(info.getPassword()));
 
         userRepository.save(user);
 
         return RespHelper.ok();
     }
 
-    public List<UserResp> findFriends(SearchInfo searchInfo, String meId){
+//    public List<UserResp> recommendFriends(SearchInfo searchInfo, String meId){
+//        User me = userRepository.findById(meId).get();
+//
+//        Set<String> notIds = me.getFriendIds();
+//        notIds.add(meId);
+//
+//        List<UserResp> result = userDao.recommendFriends(searchInfo, notIds)
+//                .stream()
+//                .map(user -> userHelper.toUserResp(user))
+//                .collect(Collectors.toList());
+//        return result;
+//    }
+    public List<UserResp> suggestFriends(SearchInfo searchInfo, String meId){
         User me = userRepository.findById(meId).get();
-        List<UserResp> result = userDao.findFriends(searchInfo)
-                .stream()
+
+        Set<String> notIds = me.getFriendIds();
+        notIds.add(meId);
+
+        List<User> users = userDao.suggestFriends(searchInfo, notIds);
+        users = cosineSimilarity.sortByCosineSimilarity(users, searchInfo);
+
+        return users.stream()
                 .map(user -> userHelper.toUserResp(user))
                 .collect(Collectors.toList());
-        return result;
     }
 
     private User findById(String userId){

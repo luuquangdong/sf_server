@@ -1,4 +1,4 @@
-package com.it5240.sportfriendfinding.model.atom;
+package com.it5240.sportfriendfinding.model.unit;
 
 public enum TournamentStatus {
     WAITING,

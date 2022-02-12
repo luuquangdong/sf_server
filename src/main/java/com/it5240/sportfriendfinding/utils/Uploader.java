@@ -2,8 +2,8 @@ package com.it5240.sportfriendfinding.utils;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.it5240.sportfriendfinding.model.atom.Media;
-import com.it5240.sportfriendfinding.exception.model.InvalidException;
+import com.it5240.sportfriendfinding.model.unit.Media;
+import com.it5240.sportfriendfinding.model.exception.InvalidException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;

@@ -2,6 +2,8 @@ package com.it5240.sportfriendfinding.controller;
 
 import com.it5240.sportfriendfinding.model.dto.post.PostReq;
 import com.it5240.sportfriendfinding.model.dto.post.PostResp;
+import com.it5240.sportfriendfinding.model.dto.tournament.TournamentPostReq;
+import com.it5240.sportfriendfinding.model.entity.ReportPost;
 import com.it5240.sportfriendfinding.service.PostService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,18 +31,26 @@ public class PostController {
     @GetMapping
     public ResponseEntity<?> getListPost(
             Principal principal,
-            @RequestParam(required = false) ObjectId lastPostId,
+            @RequestParam(required = false) ObjectId lastId,
             @RequestParam int size
             ){
         String phoneNumber = principal.getName();
-        List<PostResp> postsResponse = postService.getListPost(phoneNumber, lastPostId, size);
+
+        List<PostResp> postsResponse = postService.getListPost(phoneNumber, lastId, size);
+        return ResponseEntity.ok(postsResponse);
+    }
+
+    @GetMapping("/user/{posterId}")
+    public ResponseEntity<?> getListPostOfUser(@PathVariable String posterId, Principal principal){
+        String meId = principal.getName();
+        List<PostResp> postsResponse = postService.getListPostOfUser(posterId, meId);
         return ResponseEntity.ok(postsResponse);
     }
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<?> deletePost(@PathVariable ObjectId postId, Principal principal){
         String phoneNumber = principal.getName();
-        String result = postService.deletePost(phoneNumber, postId);
+        var result = postService.deletePost(phoneNumber, postId);
         return ResponseEntity.ok(result);
     }
 
@@ -63,4 +73,45 @@ public class PostController {
         return ResponseEntity.ok(postResponse);
     }
 
+    @PostMapping("/tournament")
+    public ResponseEntity<?> createTournamentPost(
+            @Valid @ModelAttribute TournamentPostReq newPost,
+            Principal principal
+    ) {
+        String meId = principal.getName();
+        return ResponseEntity.ok(postService.createTournamentPost(newPost, meId));
+    }
+
+    @GetMapping("/tournament/{tournamentId}")
+    public ResponseEntity<?> getListTournamentPost(
+            Principal principal,
+            @PathVariable ObjectId tournamentId
+    ){
+        String meId = principal.getName();
+        return ResponseEntity.ok(postService.getListTournamentPost(tournamentId, meId));
+    }
+
+    @DeleteMapping("/tournament/{tournamentId}/{postId}")
+    public ResponseEntity<?> deleteTournamentPost(
+            Principal principal,
+            @PathVariable ObjectId tournamentId,
+            @PathVariable ObjectId postId
+    ){
+        String meId = principal.getName();
+        return ResponseEntity.ok(postService.deleteTournamentPost(tournamentId, postId, meId));
+    }
+
+    @PostMapping("/report")
+    public ResponseEntity<?> reportPost(
+            Principal principal,
+            @RequestBody ReportPost reportPost
+    ){
+        String meId = principal.getName();
+        return ResponseEntity.ok(postService.reportPost(reportPost, meId));
+    }
+
+    @GetMapping("/list-report")
+    public ResponseEntity<?> getAllReport(){
+        return ResponseEntity.ok(postService.getAllReport());
+    }
 }

@@ -1,6 +1,5 @@
 package com.it5240.sportfriendfinding.websocket;
 
-import com.it5240.sportfriendfinding.websocket.model.StompPrincipal;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;

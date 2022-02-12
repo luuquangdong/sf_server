@@ -1,7 +1,7 @@
 package com.it5240.sportfriendfinding.service;
 
 import com.it5240.sportfriendfinding.exception.NotFoundExceptionFactory;
-import com.it5240.sportfriendfinding.exception.model.ExceptionType;
+import com.it5240.sportfriendfinding.model.exception.ExceptionType;
 import com.it5240.sportfriendfinding.model.entity.Sport;
 import com.it5240.sportfriendfinding.repository.SportRepository;
 import com.it5240.sportfriendfinding.utils.RespHelper;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,7 +41,7 @@ public class SportService {
                 .collect(Collectors.toList());
     }
 
-    public String deleteSport(ObjectId sportId){
+    public Map<String, Object> deleteSport(ObjectId sportId){
         sportRepository.deleteById(sportId);
         return RespHelper.ok();
     }

@@ -1,7 +1,7 @@
 package com.it5240.sportfriendfinding.controller;
 
 import com.it5240.sportfriendfinding.model.dto.other.FileUpload;
-import com.it5240.sportfriendfinding.model.atom.Media;
+import com.it5240.sportfriendfinding.model.unit.Media;
 import com.it5240.sportfriendfinding.utils.Uploader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

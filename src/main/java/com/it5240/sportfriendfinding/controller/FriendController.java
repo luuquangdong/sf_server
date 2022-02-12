@@ -1,9 +1,8 @@
 package com.it5240.sportfriendfinding.controller;
 
-import com.it5240.sportfriendfinding.model.dto.user.FriendResp;
+import com.it5240.sportfriendfinding.model.dto.user.ShortInfoUser;
 import com.it5240.sportfriendfinding.model.entity.FriendRequest;
 import com.it5240.sportfriendfinding.service.FriendService;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,7 +20,7 @@ public class FriendController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getFriends(@PathVariable(required = true) String userId){
-        List<FriendResp> friends = friendService.getListFriend(userId);
+        List<ShortInfoUser> friends = friendService.getListFriend(userId);
         return ResponseEntity.ok(friends);
     }
 
@@ -29,33 +28,32 @@ public class FriendController {
     @DeleteMapping("/{friendId}")
     public ResponseEntity<?> deleteFriend(@PathVariable(required = true) String friendId, Principal principal){
         String meId = principal.getName();
-        String result = friendService.deleteFriend(meId, friendId);
+        var result = friendService.deleteFriend(meId, friendId);
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/answer-request/{requestId}/{answer}")
+    @GetMapping("/answer-request/{requesterId}/{answer}")
     public ResponseEntity<?> answerRequest(
             Principal principal,
-            @PathVariable ObjectId requestId,
-            @PathVariable int answer
+            @PathVariable String requesterId,
+            @PathVariable boolean answer
     ) {
         String meId = principal.getName();
-        String result = friendService.answerRequest(meId, requestId, answer == 1);
+        var result = friendService.answerRequest(meId, requesterId, answer);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/request")
     public ResponseEntity<?> getListFriendRequest(Principal principal){
         String meId = principal.getName();
-        List<FriendRequest> result = friendService.getListFriendRequest(meId);
+        List<ShortInfoUser> result = friendService.getListFriendRequest(meId);
         return ResponseEntity.ok(result);
     }
 
     @PostMapping("/request")
-    public ResponseEntity<?> createRequest(@Valid @RequestBody FriendRequest friendRequest, Principal principal){
+    public ResponseEntity<?> requestMakeFriend(@Valid @RequestBody FriendRequest friendRequest, Principal principal){
         String meId = principal.getName();
-        friendRequest.setUserIdSent(meId);
-        String result = friendService.createFriendRequest(friendRequest);
+        var result = friendService.requestMakeFriend(friendRequest, meId);
         return ResponseEntity.ok(result);
     }
 }

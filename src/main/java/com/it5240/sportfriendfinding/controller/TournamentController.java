@@ -1,10 +1,9 @@
 package com.it5240.sportfriendfinding.controller;
 
-import com.it5240.sportfriendfinding.model.atom.TournamentBase;
-import com.it5240.sportfriendfinding.model.atom.TournamentStatus;
-import com.it5240.sportfriendfinding.model.dto.tournament.ConfirmRequest;
-import com.it5240.sportfriendfinding.model.dto.tournament.ScheduleInfo;
-import com.it5240.sportfriendfinding.model.dto.tournament.TournamentResp;
+import com.it5240.sportfriendfinding.model.unit.Media;
+import com.it5240.sportfriendfinding.model.unit.TournamentBase;
+import com.it5240.sportfriendfinding.model.unit.TournamentStatus;
+import com.it5240.sportfriendfinding.model.dto.tournament.*;
 import com.it5240.sportfriendfinding.model.entity.Tournament;
 import com.it5240.sportfriendfinding.service.TournamentService;
 import org.bson.types.ObjectId;
@@ -17,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/tournaments")
@@ -26,12 +26,26 @@ public class TournamentController {
 
     @GetMapping
     public ResponseEntity<?> getListTournament(
-            @RequestParam(required = false) ObjectId lastId,
+            @RequestParam(required = false) ObjectId lastTournamentId,
             @RequestParam int size,
             Principal principal
     ){
         String meId = principal.getName();
-        List<TournamentResp> tournament = tournamentService.getListTournament(lastId, size, TournamentStatus.WAITING, meId);
+        List<TournamentResp> tournament = tournamentService.getListTournamentV2(lastTournamentId, size, TournamentStatus.WAITING, meId);
+        return ResponseEntity.ok(tournament);
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<?> getMyListTournament(Principal principal){
+        String meId = principal.getName();
+        List<TournamentResp> result = tournamentService.getMyListTournament(meId);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/joined")
+    public ResponseEntity<?> getMyListTournamentJoined(Principal principal){
+        String meId = principal.getName();
+        List<TournamentResp> tournament = tournamentService.getMyListTournamentJoined(meId);
         return ResponseEntity.ok(tournament);
     }
 
@@ -57,7 +71,7 @@ public class TournamentController {
     @DeleteMapping("/{tournamentId}")
     public ResponseEntity<?> deleteTournament(@PathVariable ObjectId tournamentId, Principal principal){
         String meId = principal.getName();
-        String result = tournamentService.deleteTournament(tournamentId, meId);
+        var result = tournamentService.deleteTournament(tournamentId, meId);
         return ResponseEntity.ok(result);
     }
 
@@ -68,7 +82,7 @@ public class TournamentController {
             Principal principal
     ){
         String meId = principal.getName();
-        String result = tournamentService.uploadBanner(banner, tournamentId, meId);
+        Media result = tournamentService.uploadBanner(banner, tournamentId, meId);
         return ResponseEntity.ok(result);
     }
 
@@ -89,15 +103,47 @@ public class TournamentController {
     @GetMapping("/join/{tournamentId}")
     public ResponseEntity<?> requestToJoinTournament(Principal principal, @PathVariable ObjectId tournamentId){
         String meId = principal.getName();
-        String result = tournamentService.requestToJoinTournament(tournamentId, meId);
+        var result = tournamentService.requestToJoinTournament(tournamentId, meId);
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/confirm")
+    @PostMapping("/answer-request")
     public ResponseEntity<?> confirmRequest(@RequestBody ConfirmRequest confirmRequest, Principal principal){
         String meId = principal.getName();
-        String result = tournamentService.confirmRequest(confirmRequest, meId);
+        Map<String, Object> result = tournamentService.confirmRequest(confirmRequest, meId);
 
         return ResponseEntity.ok(result);
     }
+
+//    @PostMapping("/posts")
+//    public ResponseEntity<?> createPost(
+//            @Valid @ModelAttribute TournamentPostReq newPost,
+//            Principal principal
+//    ){
+//        String meId = principal.getName();
+//        TournamentPostResp postResponse = tournamentService.createPost(newPost, meId);
+//        return ResponseEntity.ok(postResponse);
+//    }
+//
+//    @GetMapping("/{tournamentId}/posts")
+//    public ResponseEntity<?> getListPost(
+//            Principal principal,
+//            @PathVariable ObjectId tournamentId
+//    ){
+//        String meId = principal.getName();
+//
+//        List<TournamentPostResp> postsResponse = tournamentService.getListPost(meId, tournamentId);
+//        return ResponseEntity.ok(postsResponse);
+//    }
+//
+//    @GetMapping("/posts/like/{postId}")
+//    public ResponseEntity<?> likePost(
+//            @PathVariable ObjectId postId,
+//            Principal principal
+//    ){
+//        String likerId = principal.getName();
+//        TournamentPostResp postResponse = tournamentService.like(postId, likerId);
+//
+//        return ResponseEntity.ok(postResponse);
+//    }
 }

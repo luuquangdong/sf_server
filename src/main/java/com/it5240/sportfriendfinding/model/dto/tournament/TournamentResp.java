@@ -11,5 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TournamentResp extends Tournament {
-    private boolean isOwner;
+    private boolean joined;
+    private boolean canEdit;
+    private boolean requested;
 }

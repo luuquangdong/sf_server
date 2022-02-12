@@ -1,4 +1,4 @@
-package com.it5240.sportfriendfinding.model.atom;
+package com.it5240.sportfriendfinding.model.unit;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,4 +27,5 @@ public class UserBase {
     protected Gender gender;
     protected String description;
     protected Location location;
+    protected boolean updatedInfo;
 }

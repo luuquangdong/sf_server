@@ -1,8 +1,8 @@
 package com.it5240.sportfriendfinding.model.entity;
 
-import com.it5240.sportfriendfinding.model.atom.Media;
-import com.it5240.sportfriendfinding.model.atom.Schedule;
-import com.it5240.sportfriendfinding.model.atom.TournamentBase;
+import com.it5240.sportfriendfinding.model.unit.Media;
+import com.it5240.sportfriendfinding.model.unit.Schedule;
+import com.it5240.sportfriendfinding.model.unit.TournamentBase;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

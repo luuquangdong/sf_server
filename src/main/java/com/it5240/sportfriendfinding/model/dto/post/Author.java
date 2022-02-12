@@ -1,6 +1,6 @@
 package com.it5240.sportfriendfinding.model.dto.post;
 
-import com.it5240.sportfriendfinding.model.atom.Media;
+import com.it5240.sportfriendfinding.model.unit.Media;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

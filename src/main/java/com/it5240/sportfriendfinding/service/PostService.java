@@ -2,15 +2,21 @@ package com.it5240.sportfriendfinding.service;
 
 import com.it5240.sportfriendfinding.exception.InvalidExceptionFactory;
 import com.it5240.sportfriendfinding.exception.NotFoundExceptionFactory;
-import com.it5240.sportfriendfinding.exception.model.ExceptionType;
-import com.it5240.sportfriendfinding.exception.model.InvalidException;
-import com.it5240.sportfriendfinding.model.atom.Media;
+import com.it5240.sportfriendfinding.model.exception.ExceptionType;
+import com.it5240.sportfriendfinding.model.exception.InvalidException;
+import com.it5240.sportfriendfinding.model.unit.Media;
+import com.it5240.sportfriendfinding.model.unit.Site;
 import com.it5240.sportfriendfinding.model.dto.post.Author;
 import com.it5240.sportfriendfinding.model.dto.post.PostReq;
 import com.it5240.sportfriendfinding.model.dto.post.PostResp;
+import com.it5240.sportfriendfinding.model.dto.tournament.TournamentPostReq;
 import com.it5240.sportfriendfinding.model.entity.Post;
+import com.it5240.sportfriendfinding.model.entity.ReportPost;
+import com.it5240.sportfriendfinding.model.entity.TournamentPost;
 import com.it5240.sportfriendfinding.model.entity.User;
 import com.it5240.sportfriendfinding.repository.PostRepository;
+import com.it5240.sportfriendfinding.repository.ReportPostRepository;
+import com.it5240.sportfriendfinding.repository.TournamentPostRepository;
 import com.it5240.sportfriendfinding.repository.UserRepository;
 import com.it5240.sportfriendfinding.utils.RespHelper;
 import com.it5240.sportfriendfinding.utils.Uploader;
@@ -39,6 +45,12 @@ public class PostService {
     @Autowired
     private ModelMapper mapper;
 
+    @Autowired
+    private ReportPostRepository reportPostRepository;
+
+    @Autowired
+    private TournamentPostRepository tournamentPostRepository;
+
     public PostResp createPost(PostReq newPost, String phoneNumber){
         if(newPost.getContent() == null && newPost.getImage() == null && newPost.getVideo() == null){
             throw InvalidExceptionFactory.get(ExceptionType.PARAMETER_NOT_ENOUGH);
@@ -48,12 +60,7 @@ public class PostService {
             throw new InvalidException("Just either a image or a video", 1006);
         }
 
-        Post post = new Post();
-        post.setAuthorId(phoneNumber);
-        post.setContent(newPost.getContent());
-        post.setBanned(false);
-        post.setCanComment(true);
-        post.setUserLikedId(new TreeSet<>());
+        Post post = new Post(phoneNumber, newPost.getContent(), Site.HOME);
 
         if(newPost.getImage() != null){
             Media image = uploader.uploadImage(newPost.getImage(), "image");
@@ -67,17 +74,12 @@ public class PostService {
 
         Post createdPost = postRepository.save(post);
 
-//        User user = userRepository.findById(phoneNumber).get();
-//
-//        PostResponse response = mapper.map(createdPost, PostResponse.class);
-//        response.setCanEdit(true);
-//        response.setAuthor(new Author(user.getPhoneNumber(), user.getName(), user.getAvatar()));
-        PostResp response = post2Response(createdPost, phoneNumber, new HashMap<String, Author>());
+        PostResp response = post2Response(createdPost, phoneNumber, null);
 
         return response;
     }
 
-    public List<PostResp> getListPost(String phoneNumber, ObjectId lastPostId, int size){
+    public List<PostResp> getListPost(String phoneNumber, ObjectId lastId, int size){
         User user = userRepository.findById(phoneNumber).get();
         List<String> authorIds = new ArrayList<>(user.getFriendIds());
         authorIds.add(phoneNumber);
@@ -85,17 +87,31 @@ public class PostService {
         Map<String, Author> authorCache = new HashMap<>();
         authorCache.put(phoneNumber, new Author(phoneNumber, user.getName(), user.getAvatar()));
 
-        Pageable paging = PageRequest.of(0, size, Sort.by("lastModifiedDate").descending());
+        Pageable paging = PageRequest.of(0, size, Sort.by("id").descending());
         List<Post> posts = null;
-        if(lastPostId == null){
-            posts = postRepository.findByAuthorIdIn(authorIds, paging);
+        if(lastId == null){
+//            posts = postRepository.findByAuthorIdIn(authorIds, paging);
+            posts = postRepository.findByAuthorIdInAndSite(authorIds, Site.HOME, paging);
         } else {
-            posts = postRepository.findByAuthorIdInAndIdLessThan(authorIds, lastPostId, paging);
+//            posts = postRepository.findByAuthorIdInAndIdLessThan(authorIds, lastId, paging);
+            posts = postRepository.findByAuthorIdInAndIdLessThanAndSite(authorIds, lastId, Site.HOME, paging);
         }
 //        List<Post> posts = postRepository.findByAuthorIdIn(authorIds, paging);
         return posts
                 .stream()
                 .map(post -> post2Response(post, phoneNumber, authorCache))
+                .collect(Collectors.toList());
+    }
+
+    public List<PostResp> getListPostOfUser(String posterId, String meId){
+        List<Post> posts = postRepository.findByAuthorIdAndSite(posterId, Site.HOME);
+
+        User poster = userRepository.findById(posterId).get();
+        Map<String, Author> authorCache = new HashMap<>();
+        authorCache.put(posterId, new Author(posterId, poster.getName(), poster.getAvatar()));
+
+        return posts.stream()
+                .map(p -> post2Response(p, meId, authorCache))
                 .collect(Collectors.toList());
     }
 
@@ -122,7 +138,7 @@ public class PostService {
         return postResp;
     }
 
-    public String deletePost(String phoneNumber, ObjectId postId){
+    public Map<String, Object> deletePost(String phoneNumber, ObjectId postId){
         Optional<Post> postOpt = postRepository.findById(postId);
         if(postOpt.isEmpty()){
             throw NotFoundExceptionFactory.get(ExceptionType.POST_NOT_FOUND);
@@ -213,5 +229,68 @@ public class PostService {
         postRepository.save(post);
 
         return post2Response(post, likerId, new HashMap<String, Author>());
+    }
+
+    public PostResp createTournamentPost(TournamentPostReq newPost, String meId){
+        if(newPost.getContent() == null && newPost.getImage() == null && newPost.getVideo() == null){
+            throw InvalidExceptionFactory.get(ExceptionType.PARAMETER_NOT_ENOUGH);
+        }
+
+        if(newPost.getImage() != null && newPost.getVideo() != null){
+            throw new InvalidException("Just either a image or a video", 1006);
+        }
+
+        Post post = new Post(meId, newPost.getContent(), Site.TOURNAMENT);
+
+        if(newPost.getImage() != null){
+            Media image = uploader.uploadImage(newPost.getImage(), "image");
+            post.setImage(image);
+        }
+
+        if(newPost.getVideo() != null){
+            Media video = uploader.uploadVideo(newPost.getVideo(), "video");
+            post.setVideo(video);
+        }
+
+        post = postRepository.save(post);
+
+        TournamentPost tournamentPost = tournamentPostRepository.findById(newPost.getTournamentId())
+                .orElse(new TournamentPost(newPost.getTournamentId()));
+        tournamentPost.addPostId(post.getId());
+        tournamentPostRepository.save(tournamentPost);
+
+        return post2Response(post, meId, null);
+    }
+
+    public List<PostResp> getListTournamentPost(ObjectId tournamentId, String meId){
+        TournamentPost tournamentPost = tournamentPostRepository.findById(tournamentId).orElse(new TournamentPost());
+        List<ObjectId> postIds = tournamentPost.getPostIds();
+
+        User me = userRepository.findById(meId).get();
+        Map<String, Author> authorCache = new HashMap<>();
+        authorCache.put(meId, new Author(meId, me.getName(), me.getAvatar()));
+
+        return postRepository.findByIdIn(postIds)
+                .stream()
+                .map(p -> post2Response(p, meId, authorCache))
+                .collect(Collectors.toList());
+    }
+
+    public Map<String, Object> deleteTournamentPost(ObjectId tournamentId, ObjectId postId, String meId){
+        TournamentPost tournamentPost = tournamentPostRepository.findById(tournamentId)
+                .orElseThrow(() -> NotFoundExceptionFactory.get(ExceptionType.TOURNAMENT_POST_NOT_FOUND));
+        tournamentPost.removePostId(postId);
+        postRepository.deleteById(postId);
+        return RespHelper.ok();
+    }
+
+    public Map<String, Object> reportPost(ReportPost report, String meId){
+        reportPostRepository.save(report);
+
+        return RespHelper.ok();
+    }
+
+    public List<ReportPost> getAllReport(){
+        return reportPostRepository.findAll(Sort.by("id").descending());
     }
 }

@@ -6,6 +6,7 @@ import com.it5240.sportfriendfinding.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -53,10 +54,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilter(new JwtAuthFilter(authenticationManager(), userRepository, jwtUtil))
                 .authorizeRequests()
-                    .antMatchers("/auth/**").permitAll()
-                    .antMatchers("/chat/**").permitAll()
-                    .antMatchers("/ws").permitAll()
-                    .anyRequest().authenticated();
+                    .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    .antMatchers("/users/**").authenticated()
+                    .antMatchers("/posts/**").authenticated()
+                    .antMatchers("/comments/**").authenticated()
+                    .antMatchers("/chats/**").authenticated()
+                    .antMatchers("/sports/**").authenticated()
+                    .antMatchers("/friends/**").authenticated()
+                    .antMatchers("/tournaments/**").authenticated()
+                    .antMatchers("/upload/**").authenticated()
+                    .anyRequest().permitAll();
     }
 
     @Bean

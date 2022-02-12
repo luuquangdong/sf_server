@@ -28,7 +28,7 @@ public class CommentController {
     @DeleteMapping("/{commentId}")
     public ResponseEntity<?> deleteComment(@PathVariable ObjectId commentId, Principal principal){
         String authorId = principal.getName();
-        String result = commentService.deleteComment(commentId, authorId);
+        var result = commentService.deleteComment(commentId, authorId);
         return ResponseEntity.ok(result);
     }
 

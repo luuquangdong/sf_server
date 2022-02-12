@@ -15,4 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 public class UserResp extends User {
     private List<Sport> sports;
+    private boolean canEdit;
+    private boolean isFriend;
+    private boolean isRequestedFriend;
 }

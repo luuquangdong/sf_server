@@ -2,7 +2,7 @@ package com.it5240.sportfriendfinding.service;
 
 import com.it5240.sportfriendfinding.exception.InvalidExceptionFactory;
 import com.it5240.sportfriendfinding.exception.NotFoundExceptionFactory;
-import com.it5240.sportfriendfinding.exception.model.ExceptionType;
+import com.it5240.sportfriendfinding.model.exception.ExceptionType;
 import com.it5240.sportfriendfinding.model.dto.post.Author;
 import com.it5240.sportfriendfinding.model.dto.post.CommentResp;
 import com.it5240.sportfriendfinding.model.entity.Comment;
@@ -51,7 +51,7 @@ public class CommentService {
         return response;
     }
 
-    public String deleteComment(ObjectId commentId, String authorId){
+    public Map<String, Object> deleteComment(ObjectId commentId, String authorId){
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> NotFoundExceptionFactory
                         .get(ExceptionType.COMMENT_NOT_FOUND)

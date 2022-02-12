@@ -2,8 +2,8 @@ package com.it5240.sportfriendfinding.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.it5240.sportfriendfinding.model.dto.user.UserReq;
-import com.it5240.sportfriendfinding.model.atom.Role;
-import com.it5240.sportfriendfinding.model.atom.UserBase;
+import com.it5240.sportfriendfinding.model.unit.Role;
+import com.it5240.sportfriendfinding.model.unit.UserBase;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +28,7 @@ public class User extends UserBase {
     //    @Id
 //    @JsonSerialize(using = ToStringSerializer.class)
 //    private ObjectId id;
+    @JsonIgnore
     @NotBlank(message = "password is required")
     @Size(min=8, message = "password must be at least 8 charactor")
     private String password;
@@ -50,9 +51,11 @@ public class User extends UserBase {
         this.name = newUserInfo.getName();
         this.birthday = newUserInfo.getBirthday();
         this.sportIds = newUserInfo.getSportIds();
-        this.avatar = newUserInfo.getAvatar();
+        this.location = newUserInfo.getLocation();
+        // this.avatar = newUserInfo.getAvatar();
         this.gender = newUserInfo.getGender();
         this.description = newUserInfo.getDescription();
+        this.updatedInfo = true;
     }
 
 }

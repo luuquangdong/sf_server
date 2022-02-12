@@ -2,12 +2,15 @@ package com.it5240.sportfriendfinding.service;
 
 import com.it5240.sportfriendfinding.exception.InvalidExceptionFactory;
 import com.it5240.sportfriendfinding.exception.NotFoundExceptionFactory;
-import com.it5240.sportfriendfinding.exception.model.ExceptionType;
+import com.it5240.sportfriendfinding.model.exception.ExceptionType;
 import com.it5240.sportfriendfinding.model.dto.chat.RoomResp;
+import com.it5240.sportfriendfinding.model.dto.post.Author;
 import com.it5240.sportfriendfinding.model.entity.Message;
 import com.it5240.sportfriendfinding.model.entity.Room;
+import com.it5240.sportfriendfinding.model.entity.User;
 import com.it5240.sportfriendfinding.repository.MessageRepository;
 import com.it5240.sportfriendfinding.repository.RoomRepository;
+import com.it5240.sportfriendfinding.repository.UserRepository;
 import com.it5240.sportfriendfinding.repository.dao.MessageDao;
 import com.it5240.sportfriendfinding.utils.RespHelper;
 import org.bson.types.ObjectId;
@@ -18,8 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,11 +34,16 @@ public class ChatService {
     private ModelMapper modelMapper;
     @Autowired
     private MessageDao messageDAO;
+    @Autowired
+    private UserRepository userRepository;
 
-    public Room createRoom(Room newRoom){
+    public RoomResp createRoom(Room newRoom){
         newRoom.setId(null);
         newRoom = roomRepository.save(newRoom);
-        return newRoom;
+        RoomResp response = modelMapper.map(newRoom, RoomResp.class);
+        List<Author> chatters = getChatters(newRoom.getUserIds(), new HashMap<String, Author>());
+        response.setChatters(chatters);
+        return response;
     }
 
     public Message createMessage(Message message){
@@ -50,7 +57,16 @@ public class ChatService {
     }
 
     public List<RoomResp> getListRoom(String userId){
+        User me = userRepository.findById(userId)
+                .orElseThrow(() -> NotFoundExceptionFactory.get(ExceptionType.USER_NOT_FOUND));
+
+        Map<String, Author> authorCache = new HashMap<>();
+        Author meAuthor = modelMapper.map(me, Author.class);
+        meAuthor.setId(userId);
+        authorCache.put(userId, meAuthor);
+
         List<Room> rooms = roomRepository.findByUserIds(userId);
+
         List<RoomResp> response = rooms.stream()
                 .map(room -> {
                     RoomResp roomResponse = modelMapper.map(room, RoomResp.class);
@@ -59,6 +75,9 @@ public class ChatService {
                     List<Message> messageList = messageDAO.findByRoomId(room.getId(), 0, 20);
                     roomResponse.setMessages(messageList);
 
+                    List<Author> chatters = getChatters(room.getUserIds(), authorCache);
+                    roomResponse.setChatters(chatters);
+
                     return roomResponse;
                 })
                 .sorted(Comparator.comparing(Room::getLastModified).reversed())
@@ -66,7 +85,26 @@ public class ChatService {
         return response;
     }
 
-    public String deleteRoom(ObjectId roomId, String meId){
+    private List<Author> getChatters(List<String> chaterIds, Map<String, Author> authorCache){
+        List<Author> chatters = new ArrayList<>();
+
+        chaterIds.forEach(chatterId -> {
+            Author at = null;
+            if(authorCache.containsKey(chatterId)){
+                at = authorCache.get(chatterId);
+            } else {
+                User u = userRepository.findById(chatterId)
+                        .orElseThrow(() -> NotFoundExceptionFactory.get(ExceptionType.USER_NOT_FOUND));
+                at = modelMapper.map(u, Author.class);
+                at.setId(chatterId);
+            }
+            chatters.add(at);
+        });
+
+        return chatters;
+    }
+
+    public Map<String, Object> deleteRoom(ObjectId roomId, String meId){
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> NotFoundExceptionFactory.get(ExceptionType.ROOM_NOT_FOUND));
         if(!room.getUserIds().contains(meId)){

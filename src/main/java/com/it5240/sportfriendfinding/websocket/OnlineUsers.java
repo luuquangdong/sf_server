@@ -1,4 +1,4 @@
-package com.it5240.sportfriendfinding.websocket.model;
+package com.it5240.sportfriendfinding.websocket;
 
 import org.springframework.stereotype.Component;
 

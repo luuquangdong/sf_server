@@ -1,15 +1,15 @@
-package com.it5240.sportfriendfinding.model.atom;
+package com.it5240.sportfriendfinding.model.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
-@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Media {
-    private String id;
-    private String url;
+@Getter
+@Setter
+public class ErrorResponse {
+    private String message;
+    private int code;
 }

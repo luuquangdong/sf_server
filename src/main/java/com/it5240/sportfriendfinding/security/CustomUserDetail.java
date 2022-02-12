@@ -1,6 +1,6 @@
 package com.it5240.sportfriendfinding.security;
 import com.it5240.sportfriendfinding.model.entity.User;
-import com.it5240.sportfriendfinding.model.atom.Role;
+import com.it5240.sportfriendfinding.model.unit.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

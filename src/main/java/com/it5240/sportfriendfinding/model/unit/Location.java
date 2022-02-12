@@ -1,4 +1,4 @@
-package com.it5240.sportfriendfinding.model.atom;
+package com.it5240.sportfriendfinding.model.unit;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

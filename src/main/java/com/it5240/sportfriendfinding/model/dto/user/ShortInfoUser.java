@@ -1,6 +1,6 @@
 package com.it5240.sportfriendfinding.model.dto.user;
 
-import com.it5240.sportfriendfinding.model.atom.Media;
+import com.it5240.sportfriendfinding.model.unit.Media;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class FriendResp {
+public class ShortInfoUser {
     protected String phoneNumber;
     protected String name;
     protected LocalDate birthday;
