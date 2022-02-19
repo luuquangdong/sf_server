@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.it5240</groupId>
-	<artifactId>sport-friend-finding</artifactId>
+	<artifactId>sport-friend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>sport-friend-finding</name>
+	<name>sport-friend</name>
 	<description>Graduation Project</description>
 	<properties>
 		<java.version>11</java.version>
