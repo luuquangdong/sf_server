@@ -8,6 +8,7 @@ import com.it5240.sportfriend.model.entity.FriendRequest;
 import com.it5240.sportfriend.model.entity.User;
 import com.it5240.sportfriend.repository.FriendRequestRepository;
 import com.it5240.sportfriend.repository.UserRepository;
+import com.it5240.sportfriend.utils.NotificationUtil;
 import com.it5240.sportfriend.utils.RespHelper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,8 @@ public class FriendService {
     private UserRepository userRepository;
     @Autowired
     private ModelMapper mapper;
+    @Autowired
+    private NotificationUtil notificationUtil;
 
     public Map<String, Object> requestMakeFriend(FriendRequest friendRequest, String meId){
         if(!meId.equals(friendRequest.getUserIdSent())){
@@ -75,6 +78,10 @@ public class FriendService {
             me.getFriendIds().add(requesterId);
             requester.getFriendIds().add(meId);
             userRepository.saveAll(List.of(me, requester));
+
+            notificationUtil.sendNotificationToUser(requester, "Thông báo", String.format("Bạn và %s đã trở thành bạn bè", me.getName()));
+        } else {
+            notificationUtil.sendNotificationToUser(requester, "Thông báo", String.format("%s đã từ chối lời mời kết bạn của bạn", me.getName()));
         }
         friendRequestRepository.delete(friendRequest);
         return RespHelper.ok();
@@ -96,6 +103,7 @@ public class FriendService {
     public Map<String, Object> deleteFriend(String meId, String friendId){
         User me = userRepository.findById(meId).get();
         me.getFriendIds().remove(friendId);
+        userRepository.save(me);
         return RespHelper.ok();
     }
 }

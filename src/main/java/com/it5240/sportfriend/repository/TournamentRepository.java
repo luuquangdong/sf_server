@@ -16,4 +16,5 @@ public interface TournamentRepository extends MongoRepository<Tournament, Object
     List<Tournament> findByStatusAndIdLessThan(TournamentStatus status, ObjectId id, Pageable pageable);
     List<Tournament> findByStatusAndIdLessThanAndIdNotIn(TournamentStatus status, ObjectId id, List<ObjectId> notInIds, Pageable pageable);
     List<Tournament> findByIdIn(List<ObjectId> Ids);
+    List<Tournament> findByStatusNotAndIdNotIn(TournamentStatus status, List<ObjectId> notInIds, Pageable pageable);
 }

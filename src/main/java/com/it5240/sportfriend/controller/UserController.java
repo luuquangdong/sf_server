@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -100,5 +101,18 @@ public class UserController {
             @PathVariable boolean value
     ){
         return ResponseEntity.ok(userService.confirmOrganization(signupId, value));
+    }
+
+    @PostMapping("/set-push-token")
+    public ResponseEntity<?> setPushToken(@RequestBody Map<String, String> data, Principal principal){
+        String meId = principal.getName();
+        String pushToken = data.get("pushToken");
+        return ResponseEntity.ok(userService.setPushToken(pushToken, meId));
+    }
+
+    @DeleteMapping("/remove-push-token")
+    public ResponseEntity<?> removePushToken(Principal principal){
+        String meId = principal.getName();
+        return ResponseEntity.ok(userService.removePushToken(meId));
     }
 }

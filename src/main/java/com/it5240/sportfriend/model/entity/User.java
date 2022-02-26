@@ -49,6 +49,8 @@ public class User extends UserBase {
 
     protected boolean banned;
 
+    private String pushToken;
+
     public void updateInfo(UserReq newUserInfo){
         this.name = newUserInfo.getName();
         this.birthday = newUserInfo.getBirthday();

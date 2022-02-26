@@ -17,8 +17,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +79,25 @@ public class CommentService {
         List<CommentResp> result = comments
                 .stream()
                 .map(comment -> comment2Response(comment, meId, authorCache))
+                .collect(Collectors.toList());
+        return result;
+    }
+
+    public List<CommentResp> getComments(ObjectId postId, ObjectId lastCommentId, int size, String meId){
+        Pageable paging = PageRequest.of(0, size, Sort.by("id").descending());
+
+        List<Comment> comments = null;
+        if(lastCommentId == null) {
+            comments = commentRepository.findByPostId(postId, paging);
+        } else {
+            comments = commentRepository.findByPostIdAndIdLessThan(postId, lastCommentId, paging);
+        }
+
+        Map<String, Author> authorCache = new HashMap<>();
+        List<CommentResp> result = comments
+                .stream()
+                .map(comment -> comment2Response(comment, meId, authorCache))
+                .sorted(Comparator.comparing(Comment::getCreatedTime))
                 .collect(Collectors.toList());
         return result;
     }

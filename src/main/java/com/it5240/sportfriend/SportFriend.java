@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 
 @SpringBootApplication
-@EnableMongoAuditing
+@EnableMongoAuditing(dateTimeProviderRef = "auditingDateTimeProvider")
 public class SportFriend {
 
 	public static void main(String[] args) {

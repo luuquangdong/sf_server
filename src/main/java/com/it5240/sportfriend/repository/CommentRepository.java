@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends MongoRepository<Comment, ObjectId> {
     public List<Comment> findByPostId(ObjectId postId, Pageable pageable);
+    public List<Comment> findByPostIdAndIdLessThan(ObjectId postId, ObjectId lastCommentId, Pageable pageable);
 }

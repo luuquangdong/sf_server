@@ -44,4 +44,16 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/page")
+    public ResponseEntity<?> getComments(
+            Principal principal,
+            @RequestParam ObjectId postId,
+            @RequestParam(required = false) ObjectId lastCommentId,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        String meId = principal.getName();
+        List<CommentResp> response = commentService.getComments(postId, lastCommentId, size, meId);
+        return ResponseEntity.ok(response);
+    }
+
 }

@@ -17,6 +17,7 @@ import com.it5240.sportfriend.repository.SignupOrganizationRepository;
 import com.it5240.sportfriend.repository.UserRepository;
 import com.it5240.sportfriend.repository.dao.UserDao;
 import com.it5240.sportfriend.service.cosin.similarity.CosineSimilarity;
+import com.it5240.sportfriend.utils.NotificationUtil;
 import com.it5240.sportfriend.utils.RespHelper;
 import com.it5240.sportfriend.utils.Uploader;
 import com.it5240.sportfriend.utils.UserUtil;
@@ -52,6 +53,8 @@ public class UserService {
     private CosineSimilarity cosineSimilarity;
     @Autowired
     private SignupOrganizationRepository signupOrganizationRepository;
+    @Autowired
+    private NotificationUtil notificationUtil;
 
     public List<User> getAll(){
         return userRepository.findAll();
@@ -136,18 +139,6 @@ public class UserService {
         return RespHelper.ok();
     }
 
-//    public List<UserResp> recommendFriends(SearchInfo searchInfo, String meId){
-//        User me = userRepository.findById(meId).get();
-//
-//        Set<String> notIds = me.getFriendIds();
-//        notIds.add(meId);
-//
-//        List<UserResp> result = userDao.recommendFriends(searchInfo, notIds)
-//                .stream()
-//                .map(user -> userHelper.toUserResp(user))
-//                .collect(Collectors.toList());
-//        return result;
-//    }
     public List<UserResp> suggestFriends(SearchInfo searchInfo, String meId){
         User me = userRepository.findById(meId).get();
 
@@ -159,6 +150,8 @@ public class UserService {
 
         return users.stream()
                 .map(user -> userHelper.toUserResp(user))
+                .skip(searchInfo.getIndex())
+                .limit(searchInfo.getSize())
                 .collect(Collectors.toList());
     }
 
@@ -183,6 +176,11 @@ public class UserService {
 
         if(value){
             user.setRole(Role.ROLE_ORGANIZATION);
+            userRepository.save(user);
+
+            notificationUtil.sendNotificationToUser(user, "Kết quả đăng ký tổ chức", "Bạn được chấp nhận là tổ chức");
+        } else {
+            notificationUtil.sendNotificationToUser(user, "Kết quả đăng ký tổ chức", "Từ chối");
         }
 
         signupOrganizationRepository.deleteById(signupId);
@@ -197,5 +195,19 @@ public class UserService {
     private User findById(String userId){
         return userRepository.findById(userId)
                 .orElseThrow(() -> NotFoundExceptionFactory.get(ExceptionType.USER_NOT_FOUND));
+    }
+
+    public Map<String, Object> setPushToken(String token, String meId){
+        User user = userRepository.findById(meId).get();
+        user.setPushToken(token);
+        userRepository.save(user);
+        return RespHelper.ok();
+    }
+
+    public Map<String, Object> removePushToken(String meId){
+        User user = userRepository.findById(meId).get();
+        user.setPushToken(null);
+        userRepository.save(user);
+        return RespHelper.ok();
     }
 }
