@@ -227,6 +227,21 @@ public class TournamentService {
         return RespHelper.ok();
     }
 
+    public Map<String, Object> deleteParticipant(ObjectId tournamentId, String participantId, String meId){
+        Tournament tournament = findById(tournamentId);
+        if(!tournament.getOrganizationId().equals(meId)){
+            throw InvalidExceptionFactory.get(ExceptionType.UNAUTHORIZED);
+        }
+        tournament.getParticipantIds().remove(participantId);
+        
+        UserTournament myUserTournament = userTournamentRepository.findById(meId).orElse(new UserTournament(meId));
+        myUserTournament.getTournamentIdsJoined().remove(tournament.getId());
+        
+        userTournamentRepository.save(myUserTournament);
+        tournamentRepository.save(tournament);
+        return RespHelper.ok();
+    }
+
     public Map<String, Object> confirmRequest(ConfirmRequest confirmRequest, String meId){
         Tournament tournament = findByIdAndCheckCanUpdate(confirmRequest.getTournamentId(), meId);
         String joinerId = confirmRequest.getUserId();

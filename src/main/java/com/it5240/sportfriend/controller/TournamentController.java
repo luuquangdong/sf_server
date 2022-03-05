@@ -108,6 +108,13 @@ public class TournamentController {
         return ResponseEntity.ok(result);
     }
 
+    @DeleteMapping("/participants/{tournamentId}/{participantId}")
+    public ResponseEntity<?> requestToJoinTournament(Principal principal, @PathVariable ObjectId tournamentId, @PathVariable String participantId){
+        String meId = principal.getName();
+        var result = tournamentService.deleteParticipant(tournamentId, participantId, meId);
+        return ResponseEntity.ok(result);
+    }
+
     @PostMapping("/answer-request")
     public ResponseEntity<?> confirmRequest(@RequestBody ConfirmRequest confirmRequest, Principal principal){
         String meId = principal.getName();
