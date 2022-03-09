@@ -102,8 +102,14 @@ public class FriendService {
 
     public Map<String, Object> deleteFriend(String meId, String friendId){
         User me = userRepository.findById(meId).get();
+        User user = userRepository.findById(friendId).get();
+
         me.getFriendIds().remove(friendId);
+        user.getFriendIds().remove(meId);
+
         userRepository.save(me);
+        userRepository.save(user);
+
         return RespHelper.ok();
     }
 }

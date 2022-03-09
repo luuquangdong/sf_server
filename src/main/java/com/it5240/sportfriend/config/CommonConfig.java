@@ -18,7 +18,8 @@ public class CommonConfig {
 
     @Bean
     public DateTimeProvider auditingDateTimeProvider() {
-        return () -> Optional.of(ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")));
+//        return () -> Optional.of(ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")));
+        return () -> Optional.of(ZonedDateTime.now(ZoneId.of("UTC")));
     }
 
     @Bean

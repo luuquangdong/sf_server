@@ -31,4 +31,25 @@ public class NotFoundExceptionFactory {
         }
         return new NotFoundException("Not found", 1050);
     }
+
+    // public static final NotFoundException get(ExceptionType type){
+    //     switch (type){
+    //         ...
+    //         case USER_NOT_FOUND:
+    //             return new NotFoundException("User is not existed", 1014);
+    //         ...
+    //     }
+    // }
 }
+
+// public class NotFoundExceptionFactory {
+//     public static final NotFoundException get(ExceptionType type){
+//         switch (type){
+//             ...
+//             case USER_NOT_FOUND:
+//                 return new NotFoundException("User is not existed", 1014);
+//             ...
+//         }
+//     }
+// }
+

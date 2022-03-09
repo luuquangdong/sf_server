@@ -14,7 +14,7 @@ import java.util.Set;
 public class BaseInfo {
     private Info info;
     private int[] onehot;
-    private final int[] coefficient = new int[] {3, 3, 2, 1, 2};
+    private final int[] coefficient = new int[] {4, 4, 3, 2, 2};
 
     public BaseInfo(SearchInfo searchInfo){
         info = new Info(searchInfo);

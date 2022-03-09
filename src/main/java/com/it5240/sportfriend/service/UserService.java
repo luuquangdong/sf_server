@@ -116,6 +116,26 @@ public class UserService {
         return userHelper.toUserRespV2(userUpdated, phoneNumber);
     }
 
+    // public UserResp updateUserInfo(UserReq newUserInfo, String phoneNumber){
+    //     ...
+    //     User user = userRepository.findById(phoneNumber)
+    //             .orElseThrow(() -> new NotFoundException("User is not existed", 1014));
+    //     ...
+    // }
+
+    // public UserResp updateUserInfo(UserReq newUserInfo, String phoneNumber){
+    //     ...
+    //     User user = userRepository.findById(phoneNumber)
+    //             .orElseThrow(() -> NotFoundExceptionFactory.get(ExceptionType.USER_NOT_FOUND));
+    //     ...
+    // }
+
+    // public Map<String, Object> changePassword(ChangePasswordInfo info, String phoneNumber){
+    //     User user = userRepository.findById(phoneNumber)
+    //             .orElseThrow(() -> new NotFoundException("User is not existed", 1014));
+    //     ...
+    // }
+
     public List<User> getListUser(List<String> userIds){
         List<User> result = userRepository.findByPhoneNumberIn(userIds);
         return result;

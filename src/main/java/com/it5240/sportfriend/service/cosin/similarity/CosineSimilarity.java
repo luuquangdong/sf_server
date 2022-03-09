@@ -32,13 +32,13 @@ public class CosineSimilarity {
             uw.setSim(cosineSimilarity(uw, targetUser));
         }
 
-        // List<UserWrapper> uWs = userCtns.stream()
-        //         .sorted(Comparator.comparingDouble(UserWrapper::getSim).reversed())
-        //         .collect(Collectors.toList());
+         List<UserWrapper> uWs = userCtns.stream()
+                 .sorted(Comparator.comparingDouble(UserWrapper::getSim).reversed())
+                 .collect(Collectors.toList());
 
-        // for(UserWrapper uw : uWs){
-        //     System.out.println(uw.getSim());
-        // }
+         for(UserWrapper uw : uWs){
+             System.out.println(uw.getSim());
+         }
 
         return userCtns.stream()
                 .sorted(Comparator.comparingDouble(UserWrapper::getSim).reversed())
